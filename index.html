@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You ❤️❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --pink-primary: #ff8fab;
+            --pink-light: #ffe5ec;
+            --pink-medium: #ffc2d1;
+            --white: #ffffff;
+            --text-dark: #5a3d4a;
+            --text-light: #8b6b7a;
+            --shadow-soft: 0 8px 30px rgba(255, 143, 171, 0.2);
+            --shadow-card: 0 4px 15px rgba(255, 143, 171, 0.15);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--white) 50%, var(--pink-light) 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Floating Hearts Background */
+        .hearts-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.3;
+            animation: floatUp 8s ease-in-out infinite;
+        }
+
+        @keyframes floatUp {
+            0%, 100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Page Container */
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Page 1 - Intro */
+        .intro-container {
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .intro-title {
+            font-size: 2.5rem;
+            color: var(--pink-primary);
+            margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .intro-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+        }
+
+        .heart-icon {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--pink-primary), var(--pink-medium));
+            color: var(--white);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(255, 143, 171, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Page 2 - Game */
+        .game-container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .game-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .moves-counter {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--pink-primary);
+            margin-bottom: 20px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, var(--pink-primary), var(--pink-medium));
+            color: var(--white);
+        }
+
+        .card-back {
+            background: var(--white);
+            transform: rotateY(180deg);
+        }
+
+        .game-success {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .game-success.show {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .success-text {
+            font-size: 1.3rem;
+            color: var(--pink-primary);
+            margin-bottom: 25px;
+        }
+
+        /* Page 3 - Interactive List */
+        .list-container {
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .list-title {
+            font-size: 1.8rem;
+            color: var(--pink-primary);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .list-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .list-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .list-item {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .list-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(255, 143, 171, 0.25);
+        }
+
+        .item-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .list-item.active .item-icon {
+            transform: scale(1.2);
+        }
+
+        .item-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .item-arrow {
+            font-size: 1rem;
+            color: var(--pink-primary);
+            transition: transform 0.3s ease;
+        }
+
+        .list-item.active .item-arrow {
+            transform: rotate(180deg);
+        }
+
+        .item-message {
+            display: none;
+            padding: 15px 20px;
+            background: var(--pink-light);
+            border-radius: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            line-height: 1.6;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .item-message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Page 4 - Final Letter */
+        .letter-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .letter-title {
+            font-size: 1.8rem;
+            color: var(--pink-primary);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .letter-box {
+            background: var(--white);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .letter-content {
+            font-size: 1rem;
+            line-height: 1.9;
+            color: var(--text-dark);
+            white-space: pre-wrap;
+        }
+
+        .letter-content::first-letter {
+            font-size: 3rem;
+            float: left;
+            margin-right: 10px;
+            line-height: 1;
+        }
+
+        .letter-signature {
+            margin-top: 30px;
+            text-align: right;
+            font-style: italic;
+            color: var(--pink-primary);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .intro-title {
+                font-size: 2rem;
+            }
+            
+            .intro-subtitle {
+                font-size: 1rem;
+            }
+
+            .cards-grid {
+                gap: 8px;
+            }
+
+            .card-front, .card-back {
+                font-size: 1.5rem;
+            }
+
+            .letter-box {
+                padding: 20px;
+            }
+
+            .letter-content {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--pink-light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--pink-medium);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pink-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Hearts Background -->
+    <div class="hearts-bg" id="heartsBg"></div>
+
+    <!-- Page 1: Intro -->
+    <div class="page active" id="page1">
+        <div class="intro-container">
+            <div class="heart-icon">💕</div>
+            <h1 class="intro-title">Haiiii Buttercup XD</h1>
+            <p class="intro-subtitle">I made this just for you!</p>
+            <button class="btn" onclick="goToPage(2)">Start Game →</button>
+        </div>
+    </div>
+
+    <!-- Page 2: Game -->
+    <div class="page" id="page2">
+        <div class="game-container">
+            <h2 class="game-title">Let's play a little game!</h2>
+            <p class="game-subtitle">Tap two cards to find the matching pairs!</p>
+            <div class="moves-counter">Moves: <span id="movesCount">0</span></div>
+            
+            <div class="cards-grid" id="cardsGrid"></div>
+            
+            <div class="game-success" id="gameSuccess">
+                <div class="success-icon">🎉</div>
+                <p class="success-text">Yay! You found all the pairs!</p>
+                <button class="btn" onclick="goToPage(3)">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: Interactive List -->
+    <div class="page" id="page3">
+        <div class="list-container">
+            <h2 class="list-title">Reasons Why You are strong </h2>
+            <p class="list-subtitle">တခုခြင်းစီနှိပ်ကြည့်ခွာ</p>
+            
+            <div class="list-items" id="listItems"></div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="goToPage(4)">Continue →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Final Letter -->
+    <div class="page" id="page4">
+        <div class="letter-container">
+            <h2 class="letter-title">A Letter For You 💖</h2>
+            
+            <div class="letter-box">
+                <div class="letter-content" id="letterContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Floating Hearts Animation
+        function createFloatingHearts() {
+            const container = document.getElementById('heartsBg');
+            const hearts = ['💕', '💖', '💗', '💘', '❤️'];
+            
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 8 + 's';
+                heart.style.animationDuration = (8 + Math.random() * 4) + 's';
+                container.appendChild(heart);
+            }
+        }
+
+        // Page Navigation
+        function goToPage(pageNum) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById('page' + pageNum).classList.add('active');
+            
+            // Initialize page content
+            if (pageNum === 2) initGame();
+            if (pageNum === 3) initList();
+            if (pageNum === 4) initLetter();
+        }
+
+        // Memory Game Logic
+        let gameCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let canFlip = true;
+
+        const cardIcons = ['💙', '⭐', '🧅', '🔥', '🥺', '🐈'];
+
+        function initGame() {
+            if (gameCards.length > 0) return; // Already initialized
+            
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            
+            // Create pairs and shuffle
+            let icons = [...cardIcons, ...cardIcons];
+            icons = shuffleArray(icons);
+            
+            icons.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">❓</div>
+                        <div class="card-back">${icon}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => flipCard(card, index));
+                grid.appendChild(card);
+                gameCards.push({ card, icon, matched: false });
+            });
+            
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            canFlip = true;
+            updateMoves();
+            document.getElementById('gameSuccess').classList.remove('show');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function flipCard(cardElement, index) {
+            if (!canFlip) return;
+            if (cardElement.classList.contains('flipped')) return;
+            if (cardElement.classList.contains('matched')) return;
+            
+            cardElement.classList.add('flipped');
+            flippedCards.push({ index, card: cardElement });
+            
+            if (flippedCards.length === 2) {
+                moves++;
+                updateMoves();
+                checkMatch();
+            }
+        }
+
+        function updateMoves() {
+            document.getElementById('movesCount').textContent = moves;
+        }
+
+        function checkMatch() {
+            canFlip = false;
+            const [first, second] = flippedCards;
+            const isMatch = gameCards[first.index].icon === gameCards[second.index].icon;
+            
+            if (isMatch) {
+                gameCards[first.index].matched = true;
+                gameCards[second.index].matched = true;
+                first.card.classList.add('matched');
+                second.card.classList.add('matched');
+                matchedPairs++;
+                flippedCards = [];
+                canFlip = true;
+                
+                if (matchedPairs === cardIcons.length) {
+                    setTimeout(() => {
+                        document.getElementById('gameSuccess').classList.add('show');
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    first.card.classList.remove('flipped');
+                    second.card.classList.remove('flipped');
+                    flippedCards = [];
+                    canFlip = true;
+                }, 1000);
+            }
+        }
+
+        // Interactive List Logic
+        const listData = [
+            { icon: '💪', label: 'Your Dedication', message: 'မီးး က တကယ်တော်ပါတယ် တကယ်တော်တာ မီးး မှာ ရည်မှန်းချက်တေရှိမှာပေါ့ လေ ကျွန်တော် မသိပေမဲ့ မီးး ‌အကောင်းဆုံးလျှောက်လမ်းနိုင်မှပါ ကိုယ်ရည်မှန်းချက်ဆိုတာ အသုံးမ၀င်ဘူးဆိုတာ မရှိဘူးနော် ဒါကြောင့် အကောင်းဆုံးကြိုးစားပါ အတာဆိုရင် လုံလောက်ပါပြီ ' },
+            { icon: '🤗', label: 'Your Tenderness', message: 'အမ မှာ ငယ်ချင်းတေ များလားမများသိပေမဲ့ မီး ပေါင်းတဲ့သူတေကိုတော့ တကယ်ခင်တဲ့ ပုံဘဲ သေချာတော့သိပေမဲ့ မီးက သဘောတော့ကောင်းတယ်။' },
+            { icon: '😂', label: 'Your Humor', message: 'မီးလိုပြောလိုက်ရင် ကန့်လန့်ကိုပြေးမြင်တာပါ ကန့်လန့်လုပ်တာ တော်တယ် အရင် က ကြိုက်ဝူး ကန့်လန့် နောက်ပိုင်း ရီနေရတယ် ကန့်လန့်က ကန့်လန့်ကောင်းတယ် ဆက်လုပ်XD' },
+            { icon: '😏', label: ' စိတ်ကောက်တယ်ဆိုတာဒါလား ဟင် 🥰', message: 'ဘာလဲ yy တို့အိမ်လာတုန်းက လိုက်မပို့ဘူးဆိုတာလား နောက်ကျမယ်ဆိုလား အတာ အဲတုန်းက အခန်း တံခါးကြီးပိတ်ပြီး ညိုတာ ဆို ဟုတ်လား မီး လူဆိုးမလေးပေါ့😌 အမ်းပေါ့လေ' },
+            { icon: '🍮', label: 'Your favourite food [ in my opnion]', message: 'မီး ရဲ့ ကြိုက်စုံ အစားအစာတေ ခံမှန်းကြည့်ရအောင် အမ်း အရင်ဆုံးက တော့ ထမင်းပေါင်း ထင်တယ် အတာကျွန်မလဲ ကြိုက်လိုXD ြီးရင် မပါမဖြစ် ice cream ပေါ့ ပြီး ရင် ပေါက်ဆီ အဟမ်း ပဲပေါက်ဆီ ပါ အမဲ က ပိုကောင်းတယ်တဲ့ ပြီးရင် ဖက်ထုပ်‌‌ ကြော်လား အတာလဲကြိုက်ပုံဘဲ ပြီး‌ရင် vanilla လဲကြိုက်တယ်မတ်လား ပြီးရင် ထမော်ကင်း ဟုတ်လား ကျန်အုံးမှာ ဦနှောက်ကောင်းဘူးလေ 🤧' },
+            { icon: '🌟', label: 'A small secret XD', message: ' အမှန်တော့ခွာ အတာ က ဟို မီဆိုတာက အမှန်တော့ မှီးးး လို့ခေါ်တာ ထင်တယ်  ဘာမှဟုတ်တော့ဘူး gjkf;gjg' }
+            ];
+            
+
+        function initList() {
+            const container = document.getElementById('listItems');
+            if (container.children.length > 0) return;
+            
+            listData.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <span class="item-icon">${item.icon}</span>
+                    <span class="item-label">${item.label}</span>
+                    <span class="item-arrow">▼</span>
+                `;
+                div.addEventListener('click', () => toggleItem(div, item.message));
+                container.appendChild(div);
+            });
+        }
+
+        function toggleItem(element, message) {
+            const isActive = element.classList.contains('active');
+            
+            // Close all others
+            document.querySelectorAll('.list-item').forEach(item => {
+                item.classList.remove('active');
+                const msg = item.querySelector('.item-message');
+                if (msg) msg.remove();
+            });
+            
+            if (!isActive) {
+                element.classList.add('active');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'item-message show';
+                msgDiv.textContent = message;
+                element.appendChild(msgDiv);
+            }
+        }
+
+        // Final Letter
+        const loveLetter = `Happy Birthday Luckyy Kitty
+
+
+ကဲ မီး ရေ  ဒီစာလေးကိုဖတ်နေပြီဆိုရင်တော့ အမမွေးနေ့လေးရောက်နေပြီပေါ့    
+
+ဒီစာလေး‌ရောက်သွားချိန်မှာ ကျွန်တော်ရှိခြင်မှ ရှိတော့မှာ ကံကောင်းရင်ရှိအုံးမှာပေါ့
+
+အခုဆိုရင် မီးအသက် 17 ပြည့်ပြီ နောက်နှစ်ဆို 18နှစ် ပေါ့ အဲ့ချိန် အနားမှာရှိသေးရင်ကောင်းမှာပါ။
+ 
+
+တကယ်တော့ ကျွန်တော်ကို မှတ်မိစေခြင်တာ အလိုကွာ လူတစ်နောက်နဲ့ ခင်ရင် အလို မှတ်မိစေခြင်တယ် တခုခုပေါ့
+အတာနဲ့ ဒါလေးကိုလုပ် ဖြစ်သွားတာပါ.
+လရှည် အသုပ်လေးဆိုပါတော့
+
+တချို့စာတေကြောင့် စိတ်ရှုပ်သွားရင် စောတီးပါနော် 
+
+ပျော်ရွှင်စရာမွေးနေ့လေးဖြစ်ပါစေ။ အဆင်ပြေပါစေအရာအာလူံး။
+
+ကျေးဇူးပါ
+
+ဟိတ် မပြီသေးဘူး ကျန်သေးတယ်နော်
+
+
+There is all I can do for you, kitty i hope you like it `;
+
+      function initLetter() {
+        const container = document.getElementById('letterContent');
+        if (container.innerHTML.trim() !== '') return;
+        
+            // စာလွှာနဲ့ ခလုတ်ကို ပေါင်းထည့်ခြင်း
+            container.innerHTML = loveLetter + '<div class="letter-signature">- That one who is always by your side.</div>' + 
+                '<button onclick="window.location.href=\'cake.html\'" style="background-color: #ff4d6d; color: white; padding: 15px 35px; border: none; border-radius: 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4); transition: transform 0.2s;" onmouseover="this.style.transform=\'scale(1.05)\'" onmouseout="this.style.transform=\'scale(1)\'">Continue to Cake 🎂</button>';
+    }
+
+    // Initialize
+    createFloatingHearts();
+</script>
